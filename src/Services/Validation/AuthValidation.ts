@@ -27,3 +27,14 @@ export const LoginSchema = yup.object({
     .min(8, "Password must be at least 8 characters")
     ,
 });
+
+
+export const NewsSchema = yup.object().shape({
+  name: yup.string().required("Name is required"),
+  brand: yup.string().required("Brand is required"),
+  description: yup.string().required("Description is required"),
+  price: yup
+    .string()
+    .required("Price is required"),
+  image: yup.mixed().optional(),
+});

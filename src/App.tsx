@@ -1,11 +1,9 @@
-import { BrowserRouter, RouterProvider } from 'react-router-dom'
+import { RouterProvider } from 'react-router-dom'
 import './App.css'
-import Footer from './Components/Footer'
-import Navbar from './Components/Navbar'
 import theme from './Theme/Theme'
 import { ThemeProvider , CssBaseline } from '@mui/material'
-import MainHome from './Components/MainHome'
 import { Router } from './Routing/Routing'
+import { Toaster } from 'sonner'
 
 function App() {
 
@@ -13,6 +11,7 @@ function App() {
     <>
     <ThemeProvider theme={theme}>
       <CssBaseline/>
+          <Toaster position='top-center' richColors/>
       <RouterProvider router={Router}/>
 
 

@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
-import Admin from "../Components/Admin";
+import Admin from "../Pages/Admin/Admin";
 import MainHome from "../Components/MainHome";
 import Navbar from "../Components/Navbar";
 import LoginPage from "../Components/LoginPage";

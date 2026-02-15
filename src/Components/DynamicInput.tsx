@@ -23,13 +23,46 @@ function DynamicInput<T extends FieldValues>({
 }: DynamicInputProps<T>) {
   return (
     <TextField
-      fullWidth
-      label={label}
-      type={type}
-      {...register(name)}
-      error={!!error}
-      helperText={error?.message}
-    />
+  fullWidth
+  label={label}
+  type={type}
+  {...register(name)}
+  error={!!error}
+  helperText={error?.message}
+  variant="outlined"
+  sx={{
+    "& .MuiInputBase-input": {
+      color: "#fff",
+    },
+
+    "& .MuiInputLabel-root": {
+      color: "rgba(255,255,255,0.7)",
+    },
+
+    "& .MuiInputLabel-root.Mui-focused": {
+      color: "#ff2d2d",
+    },
+
+    "& .MuiOutlinedInput-root": {
+      "& fieldset": {
+        borderColor: "rgba(255,255,255,0.3)",
+      },
+      "&:hover fieldset": {
+        borderColor: "#ff2d2d",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#ff2d2d",
+      },
+    },
+
+    "& input:-webkit-autofill": {
+      WebkitBoxShadow: "0 0 0 1000px transparent inset",
+      WebkitTextFillColor: "#fff",
+      transition: "background-color 5000s ease-in-out 0s",
+    },
+  }}
+/>
+
   );
 }
 
