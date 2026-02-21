@@ -1,10 +1,10 @@
 import { Box, Button, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import DynamicInput from "./DynamicInput";
+import DynamicInput from "./DynamicComponents/DynamicInput";
+import DynamicPasswordInput from "./DynamicComponents/DynamicPasswordInput";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { SignupSchema } from "../Services/Validation/AuthValidation";
-import { useEffect } from "react";
 import { signupUser } from "../Hooks/Redux-Toolkit/Slice/Auth.slice";
 import { useAppDispatch, useAppSelector } from "../Hooks/Utils/redux";
 import signupImg from "../assets/signup.png";
@@ -19,7 +19,7 @@ type SignupFormData = {
 export default function SignupPage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { loading, user } = useAppSelector((state) => state.auth);
+  const { loading } = useAppSelector((state) => state.auth);
 
   const {
     register,
@@ -36,10 +36,6 @@ export default function SignupPage() {
     },
   });
 
-  useEffect(() => {
-    if (user) navigate("/login");
-  }, [user, navigate]);
-
   const handleSignupSubmit = async (data: SignupFormData) => {
     await dispatch(
       signupUser({
@@ -48,6 +44,7 @@ export default function SignupPage() {
         password: data.password,
       })
     );
+    navigate("/login");
     reset();
   };
 
@@ -60,7 +57,7 @@ export default function SignupPage() {
           "radial-gradient(circle at 10% 10%, #2a0c0c, #090909 70%)",
       }}
     >
-      {/* LEFT IMAGE */}
+      {/* LEFT SIDE - IMAGE */}
       <Box
         sx={{
           width: "60%",
@@ -79,7 +76,6 @@ export default function SignupPage() {
           }}
         />
 
-        {/* overlay */}
         <Box
           sx={{
             position: "absolute",
@@ -89,7 +85,6 @@ export default function SignupPage() {
           }}
         />
 
-        {/* text */}
         <Box
           sx={{
             position: "absolute",
@@ -100,7 +95,7 @@ export default function SignupPage() {
           }}
         >
           <Typography variant="h3" sx={{ fontWeight: 700, mb: 2 }}>
-            Join AutoFix Pro 🚗
+            Join AutoFix Pro
           </Typography>
 
           <Typography sx={{ opacity: 0.85 }}>
@@ -110,7 +105,7 @@ export default function SignupPage() {
         </Box>
       </Box>
 
-      {/* RIGHT FORM */}
+      {/* RIGHT SIDE - FORM */}
       <Box
         sx={{
           width: { xs: "100%", md: "40%" },
@@ -120,7 +115,6 @@ export default function SignupPage() {
           p: 4,
         }}
       >
-        {/* GLASS CARD */}
         <Box
           sx={{
             width: "100%",
@@ -137,7 +131,6 @@ export default function SignupPage() {
             overflow: "hidden",
           }}
         >
-          {/* red glow */}
           <Box
             sx={{
               position: "absolute",
@@ -160,6 +153,7 @@ export default function SignupPage() {
           </Typography>
 
           <form onSubmit={handleSubmit(handleSignupSubmit)}>
+            {/* FULL NAME */}
             <Box mb={2}>
               <DynamicInput
                 name="fullName"
@@ -170,6 +164,7 @@ export default function SignupPage() {
               />
             </Box>
 
+            {/* EMAIL */}
             <Box mb={2}>
               <DynamicInput
                 name="email"
@@ -180,26 +175,27 @@ export default function SignupPage() {
               />
             </Box>
 
+            {/* PASSWORD */}
             <Box mb={2}>
-              <DynamicInput
+              <DynamicPasswordInput
                 name="password"
                 label="Password"
-                type="password"
                 register={register}
                 error={errors.password}
               />
             </Box>
 
+            {/* CONFIRM PASSWORD */}
             <Box mb={3}>
-              <DynamicInput
+              <DynamicPasswordInput
                 name="confirmPassword"
                 label="Confirm Password"
-                type="password"
                 register={register}
                 error={errors.confirmPassword}
               />
             </Box>
 
+            {/* SIGNUP BUTTON */}
             <Button
               fullWidth
               type="submit"

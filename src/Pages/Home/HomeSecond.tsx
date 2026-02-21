@@ -2,8 +2,8 @@ import {
   Box,
   Container,
   Typography,
-  Stack,
   Button,
+  Grid,
 } from "@mui/material";
 
 import BuildIcon from "@mui/icons-material/Build";
@@ -15,13 +15,18 @@ const HomeSecond = () => {
     <Box
       sx={{
         backgroundColor: "#2F2F2F",
-        py: { xs: 6, md: 8 },
+        py: { xs: 6, sm: 7, md: 8 },
       }}
     >
       <Container>
         {/* ===== Section Heading ===== */}
-        <Box textAlign="center" mb={6}>
-          <Typography variant="h2">
+        <Box textAlign="center" mb={{ xs: 4, md: 6 }}>
+          <Typography
+            variant="h2"
+            sx={{
+              fontSize: { xs: "28px", sm: "34px", md: "42px" },
+            }}
+          >
             We Provide{" "}
             <Box
               component="span"
@@ -38,111 +43,88 @@ const HomeSecond = () => {
 
           <Typography
             variant="body1"
-            sx={{ maxWidth: 520, mx: "auto", mt: 1 }}
+            sx={{
+              maxWidth: 520,
+              mx: "auto",
+              mt: 2,
+              fontSize: { xs: "14px", sm: "16px" },
+            }}
           >
             We aim to earn your trust and have a long term relationship with you
           </Typography>
         </Box>
 
         {/* ===== Services Cards ===== */}
-        <Stack
-          direction={{ xs: "column", md: "row" }}
-          spacing={4}
-          justifyContent="center"
-        >
-          {/* === Card 1 === */}
-          <Box textAlign="center" maxWidth={260} mx="auto">
-            <Box
-              sx={{
-                width: 64,
-                height: 64,
-                borderRadius: "50%",
-                bgcolor: "primary.main",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                mx: "auto",
-                mb: 2,
-              }}
-            >
-              <BuildIcon sx={{ color: "#fff" }} />
-            </Box>
+        <Grid container spacing={4}>
+          {/* Card 1 */}
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <ServiceCard
+              icon={<BuildIcon />}
+              title="Maintenance"
+            />
+          </Grid>
 
-            <Typography variant="h6" mb={1}>
-              Maintenance
-            </Typography>
+          {/* Card 2 */}
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <ServiceCard
+              icon={<TireRepairIcon />}
+              title="Wheels & Tires"
+            />
+          </Grid>
 
-            <Typography variant="body1" mb={2}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-              eiusmod tempor.
-            </Typography>
-
-            <Button variant="outlined">Read more</Button>
-          </Box>
-
-          {/* === Card 2 === */}
-          <Box textAlign="center" maxWidth={260} mx="auto">
-            <Box
-              sx={{
-                width: 64,
-                height: 64,
-                borderRadius: "50%",
-                bgcolor: "primary.main",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                mx: "auto",
-                mb: 2,
-              }}
-            >
-              <TireRepairIcon sx={{ color: "#fff" }} />
-            </Box>
-
-            <Typography variant="h6" mb={1}>
-              Wheels & Tires
-            </Typography>
-
-            <Typography variant="body1" mb={2}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-              eiusmod tempor.
-            </Typography>
-
-            <Button variant="outlined">Read more</Button>
-          </Box>
-
-          {/* === Card 3 === */}
-          <Box textAlign="center" maxWidth={260} mx="auto">
-            <Box
-              sx={{
-                width: 64,
-                height: 64,
-                borderRadius: "50%",
-                bgcolor: "primary.main",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                mx: "auto",
-                mb: 2,
-              }}
-            >
-              <LocalGasStationIcon sx={{ color: "#fff" }} />
-            </Box>
-
-            <Typography variant="h6" mb={1}>
-              Fuel Change
-            </Typography>
-
-            <Typography variant="body1" mb={2}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-              eiusmod tempor.
-            </Typography>
-
-            <Button variant="outlined">Read more</Button>
-          </Box>
-        </Stack>
+          {/* Card 3 */}
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <ServiceCard
+              icon={<LocalGasStationIcon />}
+              title="Fuel Change"
+            />
+          </Grid>
+        </Grid>
       </Container>
     </Box>
   );
 };
+
+const ServiceCard = ({ icon, title }) => (
+  <Box
+    textAlign="center"
+    sx={{
+      px: 2,
+      py: 3,
+    }}
+  >
+    <Box
+      sx={{
+        width: { xs: 60, md: 70 },
+        height: { xs: 60, md: 70 },
+        borderRadius: "50%",
+        bgcolor: "primary.main",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        mx: "auto",
+        mb: 2,
+      }}
+    >
+      {icon}
+    </Box>
+
+    <Typography variant="h6" mb={1}>
+      {title}
+    </Typography>
+
+    <Typography
+      variant="body2"
+      mb={2}
+      sx={{ fontSize: { xs: "14px", sm: "15px" } }}
+    >
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor.
+    </Typography>
+
+    <Button variant="outlined" size="small">
+      Read more
+    </Button>
+  </Box>
+);
 
 export default HomeSecond;

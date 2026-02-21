@@ -7,13 +7,13 @@ export const SignupSchema = yup.object({
     .email("Please Enter A Valid Email")
     .required("Please Enter A Valid Email"),
   password: yup
-    .string().required("Password is mandatory")
-    .min(8, "Password must be at least 8 characters")
+    .string().required("Password Is Mandatory")
+    .min(8, "Password Must Be At Least 8 Characters")
     ,
   confirmPassword: yup
     .string()
-    .oneOf([yup.ref('password')], "Passwords must match")
-    .required("Confirm Password is mandatory"),
+    .oneOf([yup.ref('password')], "Passwords Must Same")
+    .required("Confirm Password Is Mandatory"),
 });
 
 
@@ -24,17 +24,18 @@ export const LoginSchema = yup.object({
     .required("Please Enter A Valid Email"),
   password: yup
     .string().required("Password is mandatory")
-    .min(8, "Password must be at least 8 characters")
+    .min(8, "Password Must Be At Least 8 Characters")
     ,
 });
 
 
-export const NewsSchema = yup.object().shape({
-  name: yup.string().required("Name is required"),
-  brand: yup.string().required("Brand is required"),
-  description: yup.string().required("Description is required"),
+export const SparesSchema = yup.object().shape({
+  name: yup.string().required("Name Is Required"),
+  brand: yup.string().required("Brand Is Required"),
+  description: yup.string().required("Description Is Required"),
   price: yup
     .string()
-    .required("Price is required"),
+    .required("Price Is Required"),
   image: yup.mixed().optional(),
+  imagePreview:yup.string().optional()
 });

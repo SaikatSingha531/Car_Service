@@ -1,13 +1,14 @@
 import { Box, Button, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import DynamicInput from "./DynamicInput";
+import DynamicInput from "./DynamicComponents/DynamicInput";
+import DynamicPasswordInput from "./DynamicComponents/DynamicPasswordInput";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { LoginSchema } from "../Services/Validation/AuthValidation";
-import { useEffect } from "react";
 import { loginUser } from "../Hooks/Redux-Toolkit/Slice/Auth.slice";
 import { useAppDispatch, useAppSelector } from "../Hooks/Utils/redux";
 import loginImg from "../assets/login.png";
+import { toast } from "sonner";
 
 type LoginformData = {
   email: string;
@@ -17,7 +18,7 @@ type LoginformData = {
 export default function LoginPage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { loading, user } = useAppSelector((state) => state.auth);
+  const { loading } = useAppSelector((state) => state.auth);
 
   const {
     register,
@@ -32,13 +33,23 @@ export default function LoginPage() {
     },
   });
 
-  useEffect(() => {
-    if (user) navigate("/admin");
-  }, [user, navigate]);
-
   const handleLoginSubmit = async (data: LoginformData) => {
-    await dispatch(loginUser(data));
-    reset();
+    try {
+      const response = await dispatch(loginUser(data)).unwrap();
+      console.log("from login page", response);
+      toast.success(response.message);
+
+      if (response.user.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
+
+      reset();
+    } catch (error: any) {
+      console.log(error);
+      toast.error(error || "Login failed");
+    }
   };
 
   return (
@@ -50,7 +61,7 @@ export default function LoginPage() {
           "radial-gradient(circle at 10% 10%, #2a0c0c, #090909 70%)",
       }}
     >
-      {/* LEFT SIDE */}
+      {/* LEFT SIDE - FORM */}
       <Box
         sx={{
           width: { xs: "100%", md: "40%" },
@@ -60,7 +71,6 @@ export default function LoginPage() {
           p: 4,
         }}
       >
-        {/* GLASS CARD */}
         <Box
           sx={{
             width: "100%",
@@ -77,7 +87,7 @@ export default function LoginPage() {
             overflow: "hidden",
           }}
         >
-          {/* RED GLOW */}
+          {/* Red Glow Effect */}
           <Box
             sx={{
               position: "absolute",
@@ -100,6 +110,7 @@ export default function LoginPage() {
           </Typography>
 
           <form onSubmit={handleSubmit(handleLoginSubmit)}>
+            {/* EMAIL FIELD */}
             <Box mb={3}>
               <DynamicInput
                 name="email"
@@ -110,16 +121,17 @@ export default function LoginPage() {
               />
             </Box>
 
+            {/* PASSWORD FIELD (UPDATED) */}
             <Box mb={3}>
-              <DynamicInput
+              <DynamicPasswordInput
                 name="password"
                 label="Password"
-                type="password"
                 register={register}
                 error={errors.password}
               />
             </Box>
 
+            {/* LOGIN BUTTON */}
             <Button
               fullWidth
               type="submit"
@@ -172,7 +184,7 @@ export default function LoginPage() {
         </Box>
       </Box>
 
-      {/* RIGHT SIDE IMAGE */}
+      {/* RIGHT SIDE - IMAGE */}
       <Box
         sx={{
           width: "60%",
@@ -191,7 +203,6 @@ export default function LoginPage() {
           }}
         />
 
-        {/* OVERLAY */}
         <Box
           sx={{
             position: "absolute",
@@ -201,7 +212,6 @@ export default function LoginPage() {
           }}
         />
 
-        {/* TEXT */}
         <Box
           sx={{
             position: "absolute",

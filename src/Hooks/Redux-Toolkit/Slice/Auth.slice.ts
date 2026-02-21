@@ -6,10 +6,17 @@ import { account, tablesDB } from "../../../lib/AppwriteConfig";
 import { ID, Query } from "appwrite";
 import Cookies from "js-cookie";
 
+const role = Cookies.get("role") ?? null;
+const token = Cookies.get("token") ?? null;
+const userDetails = Cookies.get("userDetails");
+const user = userDetails ? JSON.parse(userDetails) : null;
+
 const initialState: AuthState = {
-  user: null,
   loading: false,
   error: null,
+  token: Boolean(token),
+  role: role,
+  user: user,
 };
 
 export const signupUser = createAsyncThunk(
@@ -44,9 +51,13 @@ export const signupUser = createAsyncThunk(
   },
 );
 
-export const loginUser = createAsyncThunk(
+export const loginUser = createAsyncThunk<
+  any,
+  { email: string; password: string },
+  { rejectValue: string }
+>(
   "auth/loginUser",
-  async (data: { email: string; password: string}, thunkAPI) => {
+  async (data: { email: string; password: string }, { rejectWithValue }) => {
     try {
       const userList = await tablesDB.listRows(
         import.meta.env.VITE_APPWRITE_DATABASE as string,
@@ -54,54 +65,59 @@ export const loginUser = createAsyncThunk(
         [Query.equal("email", data.email)],
       );
 
-      if (userList.rows.length === 0) {
-        throw new Error("User not found");
+      // if (userList.rows.length === 0) {
+      //   throw new Error("User not found");
+      // }
+
+      // try {
+      //   await account.deleteSessions();
+      // } catch (e) {}
+      if (userList.total > 0) {
+        const resp = await account.createEmailPasswordSession(
+          data.email,
+          data.password,
+        );
+
+        const user = userList?.rows?.[0];
+        console.log("user coming in login slice", user);
+        console.log("this is after login data", resp);
+
+        return {
+          message: "Login successfully",
+          user: user,
+          data: resp,
+          status: true,
+        };
+
+        // return userList.rows[0];
+      } else {
+        toast.error("user not exists");
+         return rejectWithValue("User not exists");
       }
+    } catch (error: any) {
+      console.log("login time error ", error);
+      // const errMsg = error instanceof Error ? error.message : "Login failed";
 
-      try {
-        await account.deleteSessions();
-      } catch (e) {}
-
-      await account.createEmailPasswordSession(data.email, data.password);
-
-      Cookies.set("token", "true");
-
-      toast.success("Login successful");
-      return userList.rows[0];
-    } catch (error: unknown) {
-      const errMsg = error instanceof Error ? error.message : "Login failed";
-
-      toast.error(errMsg);
-      return thunkAPI.rejectWithValue(errMsg);
+      // toast.error(errMsg);
+      return rejectWithValue(error?.message || "invalid email password");
     }
   },
 );
-
-export const logoutUser = createAsyncThunk(
-  "auth/logoutUser",
-  async (_, thunkAPI) => {
-    try {
-      await account.deleteSession("current");
-      Cookies.remove("token");
-      // sessionStorage.removeItem("token");
-      toast.success("Logged out successfully");
-      return true;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.message);
-    }
-  }
-);
-
-
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
     logout: (state) => {
+      state.user = null;
+      state.role = null;
+      state.token = false;
+      Cookies.remove("role");
+      Cookies.remove("token");
+      Cookies.remove("userDetails");
+      account.deleteSession("current");
       state.loading = false;
       state.error = null;
-      state.user = null;
     },
   },
   extraReducers: (builder) => {
@@ -112,7 +128,8 @@ const authSlice = createSlice({
       })
       .addCase(signupUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
+        // state.user = action.payload;
+        console.log("user coming in login fullfill", action.payload);
       })
       .addCase(signupUser.rejected, (state, action) => {
         state.loading = false;
@@ -125,20 +142,21 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
+        // state.user = action.payload;
+        // console.log("user coming in login fullfill", action.payload);
+        state.user = action.payload?.user;
+        state.token = true;
+        state.role = action.payload?.user.role;
+        Cookies.set("token", "true", { expires: 1 });
+        Cookies.set("role", action.payload?.user.role, { expires: 1 });
+        Cookies.set("userDetails", JSON.stringify(action.payload?.user));
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });
-      builder
-      .addCase(logoutUser.fulfilled, (state) => {
-        state.user = null;
-        state.error = null;
-        state.loading = false;
-      });
   },
 });
 
-// export const { } = authSlice.actions;
+export const { logout } = authSlice.actions;
 export default authSlice.reducer;
