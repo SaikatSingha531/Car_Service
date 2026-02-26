@@ -33,6 +33,7 @@ import {
   addSpare,
   fetchSpare,
   deleteSpare,
+  updateSpare,
 } from "../../Hooks/Redux-Toolkit/Slice/Spare.slice";
 import { useAppDispatch, useAppSelector } from "../../Hooks/Utils/redux";
 
@@ -55,6 +56,7 @@ interface SpareFormValues {
 
 export default function SparesAdmin() {
   const [open, setOpen] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
 
   const dispatch = useAppDispatch();
   const { loading, items } = useAppSelector((state) => state.spare);
@@ -86,11 +88,42 @@ export default function SparesAdmin() {
 
   const handleClose = () => {
     setOpen(false);
+    setEditId(null);
     reset();
   };
 
+  const handleAddClick = () => {
+    setEditId(null);
+    reset();
+    setOpen(true);
+  };
+
+  const handleEdit = (item: any) => {
+    setEditId(item.$id);
+    setValue("name", item.name);
+    setValue("brand", item.brand);
+    setValue("description", item.description);
+    setValue("price", item.price);
+    setOpen(true);
+  };
+
   const onSubmit = async (data: SpareFormValues) => {
-    await dispatch(addSpare(data));
+    if (editId) {
+      await dispatch(
+        updateSpare({
+          id: editId,
+          formData: {
+            name: data.name,
+            brand: data.brand,
+            description: data.description,
+            price: data.price,
+          },
+        })
+      );
+    } else {
+      await dispatch(addSpare(data));
+    }
+
     handleClose();
   };
 
@@ -103,7 +136,7 @@ export default function SparesAdmin() {
             Spare Parts
           </Typography>
 
-          <Button variant="contained" onClick={() => setOpen(true)}>
+          <Button variant="contained" onClick={handleAddClick}>
             Add Product
           </Button>
         </Box>
@@ -113,77 +146,74 @@ export default function SparesAdmin() {
           <form onSubmit={handleSubmit(onSubmit)}>
             <Box px={3} py={2} borderBottom="1px solid" borderColor="divider">
               <Typography variant="h5" fontWeight="bold" color="primary">
-                Add Product
+                {editId ? "Edit Product" : "Add Product"}
               </Typography>
             </Box>
 
             <DialogContent sx={{ mt: 2 }}>
-              {/* IMAGE */}
-              <Controller
-                name="image"
-                control={control}
-                render={({ field }) => (
-                  <Box display="flex" flexDirection="column" alignItems="center" gap={2} mb={2}>
+              {/* IMAGE (Only in Add Mode) */}
+              {!editId && (
+                <Controller
+                  name="image"
+                  control={control}
+                  render={({ field }) => (
                     <Box
-                      sx={{
-                        width: "70%",
-                        height: 240,
-                        borderRadius: 3,
-                        border: "2px dashed",
-                        borderColor: "divider",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                        overflow: "hidden",
-                        "&:hover": { borderColor: "primary.main" },
-                      }}
-                      component="label"
+                      display="flex"
+                      flexDirection="column"
+                      alignItems="center"
+                      gap={2}
+                      mb={2}
                     >
-                      {previewImage ? (
-                        <Box
-                          component="img"
-                          src={previewImage}
-                          sx={{ width: "100%", height: "100%", objectFit: "cover" }}
-                        />
-                      ) : (
-                        <Typography>Upload Image</Typography>
-                      )}
-
-                      <input
-                        hidden
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            field.onChange(file);
-                            setValue("imagePreview", URL.createObjectURL(file));
-                          }
+                      <Box
+                        sx={{
+                          width: "70%",
+                          height: 240,
+                          borderRadius: 3,
+                          border: "2px dashed",
+                          borderColor: "divider",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          cursor: "pointer",
+                          overflow: "hidden",
+                          "&:hover": { borderColor: "primary.main" },
                         }}
-                      />
-                    </Box>
-
-                    {previewImage && (
-                      <Button
-                        color="error"
-                        onClick={() => {
-                          setValue("image", undefined);
-                          setValue("imagePreview", undefined);
-                        }}
+                        component="label"
                       >
-                        Remove Image
-                      </Button>
-                    )}
+                        {previewImage ? (
+                          <Box
+                            component="img"
+                            src={previewImage}
+                            sx={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                            }}
+                          />
+                        ) : (
+                          <Typography>Upload Image</Typography>
+                        )}
 
-                    {errors.image && (
-                      <Typography color="error" variant="caption">
-                        {errors.image.message}
-                      </Typography>
-                    )}
-                  </Box>
-                )}
-              />
+                        <input
+                          hidden
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              field.onChange(file);
+                              setValue(
+                                "imagePreview",
+                                URL.createObjectURL(file)
+                              );
+                            }
+                          }}
+                        />
+                      </Box>
+                    </Box>
+                  )}
+                />
+              )}
 
               {/* NAME */}
               <Controller
@@ -208,7 +238,7 @@ export default function SparesAdmin() {
                 render={({ field }) => (
                   <FormControl fullWidth margin="dense" error={!!errors.brand}>
                     <InputLabel>Parts</InputLabel>
-                    <Select {...field} label="Brand">
+                    <Select {...field} label="Parts">
                       <MenuItem value="Bumper">Bumper</MenuItem>
                       <MenuItem value="Fender">Fender</MenuItem>
                       <MenuItem value="Hood">Hood</MenuItem>
@@ -257,7 +287,11 @@ export default function SparesAdmin() {
             <DialogActions sx={{ p: 3 }}>
               <Button onClick={handleClose}>Cancel</Button>
               <Button variant="contained" type="submit" disabled={loading}>
-                {loading ? "Saving..." : "Save Product"}
+                {loading
+                  ? "Saving..."
+                  : editId
+                  ? "Update Product"
+                  : "Save Product"}
               </Button>
             </DialogActions>
           </form>
@@ -305,13 +339,18 @@ export default function SparesAdmin() {
                       <TableCell>₹ {item.price}</TableCell>
 
                       <TableCell align="center">
-                        <IconButton color="primary">
+                        <IconButton
+                          color="primary"
+                          onClick={() => handleEdit(item)}
+                        >
                           <EditIcon />
                         </IconButton>
 
                         <IconButton
                           color="error"
-                          onClick={() => dispatch(deleteSpare(item.$id))}
+                          onClick={() =>
+                            dispatch(deleteSpare(item.$id))
+                          }
                         >
                           <DeleteIcon />
                         </IconButton>

@@ -87,12 +87,39 @@ export const deleteSpare = createAsyncThunk(
   },
 );
 
+export const updateSpare = createAsyncThunk(
+  "spare/update",
+  async (
+    { id, formData }: { id: string; formData: any },
+    { rejectWithValue },
+  ) => {
+    try {
+      const response = await databases.updateDocument(
+        DATABASE_ID,
+        COLLECTION_ID,
+        id,
+        {
+          name: formData.name,
+          brand: formData.brand,
+          description: formData.description,
+          price: formData.price,
+          // image not changing
+        },
+      );
+
+      toast.success("Product updated successfully!");
+      return response;
+    } catch (error: any) {
+      toast.error(error.message);
+      return rejectWithValue(error.message || "Failed to update");
+    }
+  },
+);
+
 const Spareslice = createSlice({
   name: "spare",
   initialState,
-  reducers: {
-
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(addSpare.pending, (state) => {
@@ -118,8 +145,27 @@ const Spareslice = createSlice({
         state.error = action.payload as string;
       })
       .addCase(deleteSpare.fulfilled, (state, action) => {
-  state.items = state.items.filter((i: any) => i.$id !== action.payload);
-});
+        state.items = state.items.filter((i: any) => i.$id !== action.payload);
+      })
+      // UPDATE
+      .addCase(updateSpare.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateSpare.fulfilled, (state, action) => {
+        state.loading = false;
+
+        const index = state.items.findIndex(
+          (item: any) => item.$id === action.payload.$id,
+        );
+
+        if (index !== -1) {
+          state.items[index] = action.payload;
+        }
+      })
+      .addCase(updateSpare.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
   },
 });
 

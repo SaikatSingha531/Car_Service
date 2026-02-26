@@ -12,10 +12,12 @@ import CartPage from "../Pages/CartPage";
 import AboutUs from "../Pages/AboutUs";
 import SparesAdmin from "../Pages/Admin/SparesAdmin";
 import ServiceAdmin from "../Pages/Admin/ServiceAdmin";
-import Spares from "../Pages/Spares";
-import CartSpare from "../Pages/CartSpare";
-import CartService from "../Pages/CartService";
-import Services from "../Pages/Services";
+// import Spares from "../Pages/Spares";
+// import CartSpare from "../Pages/CartSpare";
+import CartService from "../Pages/Servicepage/CartService";
+import Services from "../Pages/Servicepage/Services";
+import CartSpare from "../Pages/Spares/CartSpare";
+import SparePage from "../Pages/Spares/Spares";
 
 export const Router = createBrowserRouter([
   {
@@ -44,7 +46,7 @@ export const Router = createBrowserRouter([
       },
       {
         path: "/spares",
-        element: <Spares/>
+        element: <SparePage/>
       },
       {
         path: "/service",
