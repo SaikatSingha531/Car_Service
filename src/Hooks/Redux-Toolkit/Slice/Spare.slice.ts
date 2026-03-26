@@ -159,7 +159,7 @@ const Spareslice = createSlice({
         );
 
         if (index !== -1) {
-          state.items[index] = action.payload;
+          state.items[index] = action.payload as any;
         }
       })
       .addCase(updateSpare.rejected, (state, action) => {

@@ -37,6 +37,10 @@ const Navbar = () => {
   const { role } = useAppSelector((state) => state.auth);
   const { count } = useAppSelector((state) => state.cart);
 
+  const {count : service}= useAppSelector((state)=>state.serviceCart);
+
+  const totalCount = count+service
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [openDrawer, setOpenDrawer] = useState(false);
@@ -152,7 +156,7 @@ const Navbar = () => {
               }}
             >
               <Badge
-                badgeContent={count}
+                badgeContent={totalCount}
                 sx={{
                   "& .MuiBadge-badge": {
                     backgroundColor: "#d84315",
