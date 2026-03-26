@@ -1,17 +1,31 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { CartState } from "../../../Typescript/interface/CartInterface";
 
-const initialState: CartState = {
-  cartProduct: [],
-  count: 0,
-};
+const loadCartFromStorage =():CartState=>{
+  try {
+    const data = localStorage.getItem("cart");
+    return data ? JSON.parse(data) : {cartProduct:[], count:0}
+  } catch (error) {
+    return {cartProduct:[], count:0}
+  }
+}
+
+const saveCartToStorage =(state : CartState)=>{
+  try {
+    localStorage.setItem("cart" , JSON.stringify(state))
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+const initialState: CartState = loadCartFromStorage();
 
 const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
     // 🟢 ADD TO CART
-    addToCart: (state, action) => {
+    addToCart: (state, action:PayloadAction<any>) => {
       const existing = state.cartProduct.find(
         (item) => item.$id === action.payload.$id
       );
@@ -22,6 +36,8 @@ const cartSlice = createSlice({
         state.cartProduct.unshift({ ...action.payload, quantity: 1 });
         state.count += 1;
       }
+
+      saveCartToStorage(state)
     },
 
     // 🔼 INCREASE QTY
@@ -32,6 +48,7 @@ const cartSlice = createSlice({
       if (item) {
         item.quantity += 1;
       }
+      saveCartToStorage(state);
     },
 
     // 🔽 DECREASE QTY
@@ -42,6 +59,7 @@ const cartSlice = createSlice({
       if (item && item.quantity > 1) {
         item.quantity -= 1;
       }
+      saveCartToStorage(state);
     },
 
     // ❌ REMOVE ITEM
@@ -50,12 +68,15 @@ const cartSlice = createSlice({
         (item) => item.$id !== action.payload
       );
       state.count = state.cartProduct.length;
+      saveCartToStorage(state);
     },
 
     // 🧹 CLEAR CART
     clearCart: (state) => {
       state.cartProduct = [];
       state.count = 0;
+
+      saveCartToStorage(state);
     },
   },
 });

@@ -22,9 +22,14 @@ import {
   TableRow,
   Paper,
   IconButton,
+  Stack,
+  Grid,
+  FormHelperText,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import AddIcon from "@mui/icons-material/Add";
+import PhotoCameraOutlinedIcon from "@mui/icons-material/PhotoCameraOutlined";
 
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -40,26 +45,35 @@ import { useAppDispatch, useAppSelector } from "../../Hooks/Utils/redux";
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#d32f2f",
+      main: "#d32f2f", // Core Red Theme
+    },
+    background: {
+      default: "#f8f9fa",
+    },
+  },
+  shape: {
+    borderRadius: 4, // Professional sharp-ish corners
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: { textTransform: "none", fontWeight: 600 },
+      },
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        head: { fontWeight: 700, backgroundColor: "#fcfcfc" },
+      },
     },
   },
 });
-
-interface SpareFormValues {
-  name: string;
-  brand: string;
-  description: string;
-  price: string;
-  image?: File;
-  imagePreview?: string;
-}
 
 export default function SparesAdmin() {
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
 
   const dispatch = useAppDispatch();
-  const { loading, items } = useAppSelector((state) => state.spare);
+  const { items } = useAppSelector((state) => state.spare);
 
   useEffect(() => {
     dispatch(fetchSpare());
@@ -72,7 +86,7 @@ export default function SparesAdmin() {
     watch,
     setValue,
     formState: { errors },
-  } = useForm<SpareFormValues>({
+  } = useForm({
     resolver: yupResolver(SparesSchema),
     defaultValues: {
       name: "",
@@ -92,283 +106,144 @@ export default function SparesAdmin() {
     reset();
   };
 
-  const handleAddClick = () => {
-    setEditId(null);
-    reset();
-    setOpen(true);
-  };
-
-  const handleEdit = (item: any) => {
-    setEditId(item.$id);
-    setValue("name", item.name);
-    setValue("brand", item.brand);
-    setValue("description", item.description);
-    setValue("price", item.price);
-    setOpen(true);
-  };
-
-  const onSubmit = async (data: SpareFormValues) => {
+  const onSubmit = async (data: any) => {
     if (editId) {
-      await dispatch(
-        updateSpare({
-          id: editId,
-          formData: {
-            name: data.name,
-            brand: data.brand,
-            description: data.description,
-            price: data.price,
-          },
-        })
-      );
+      await dispatch(updateSpare({ id: editId, formData: data }));
     } else {
       await dispatch(addSpare(data));
     }
-
     handleClose();
   };
 
   return (
     <ThemeProvider theme={theme}>
-      <Container maxWidth="xl" sx={{ mt: 4 }}>
-        {/* Header */}
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h4" fontWeight="bold" color="primary">
-            Spare Parts
-          </Typography>
-
-          <Button variant="contained" onClick={handleAddClick}>
-            Add Product
-          </Button>
-        </Box>
-
-        {/* Dialog */}
-        <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <Box px={3} py={2} borderBottom="1px solid" borderColor="divider">
-              <Typography variant="h5" fontWeight="bold" color="primary">
-                {editId ? "Edit Product" : "Add Product"}
-              </Typography>
+      <Box sx={{ bgcolor: "background.default", minHeight: "100vh", py: 4 }}>
+        <Container maxWidth="xl">
+          {/* Dashboard Header */}
+          <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <Box>
+              <Typography variant="h5" sx={{ fontWeight: 800 }}>Inventory Management</Typography>
+              <Typography variant="body2" color="text.secondary">Manage your auto-parts catalog and pricing.</Typography>
             </Box>
+            <Button variant="contained" disableElevation startIcon={<AddIcon />} onClick={() => { setEditId(null); reset(); setOpen(true); }}>
+              Add Product
+            </Button>
+          </Box>
 
-            <DialogContent sx={{ mt: 2 }}>
-              {/* IMAGE (Only in Add Mode) */}
-              {!editId && (
-                <Controller
-                  name="image"
-                  control={control}
-                  render={({ field }) => (
-                    <Box
-                      display="flex"
-                      flexDirection="column"
-                      alignItems="center"
-                      gap={2}
-                      mb={2}
-                    >
-                      <Box
-                        sx={{
-                          width: "70%",
-                          height: 240,
-                          borderRadius: 3,
-                          border: "2px dashed",
-                          borderColor: "divider",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          cursor: "pointer",
-                          overflow: "hidden",
-                          "&:hover": { borderColor: "primary.main" },
-                        }}
-                        component="label"
-                      >
-                        {previewImage ? (
-                          <Box
-                            component="img"
-                            src={previewImage}
-                            sx={{
-                              width: "100%",
-                              height: "100%",
-                              objectFit: "cover",
-                            }}
-                          />
-                        ) : (
-                          <Typography>Upload Image</Typography>
-                        )}
-
-                        <input
-                          hidden
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              field.onChange(file);
-                              setValue(
-                                "imagePreview",
-                                URL.createObjectURL(file)
-                              );
-                            }
-                          }}
-                        />
-                      </Box>
-                    </Box>
-                  )}
-                />
-              )}
-
-              {/* NAME */}
-              <Controller
-                name="name"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Product Name"
-                    fullWidth
-                    margin="dense"
-                    error={!!errors.name}
-                    helperText={errors.name?.message}
-                  />
-                )}
-              />
-
-              {/* BRAND */}
-              <Controller
-                name="brand"
-                control={control}
-                render={({ field }) => (
-                  <FormControl fullWidth margin="dense" error={!!errors.brand}>
-                    <InputLabel>Parts</InputLabel>
-                    <Select {...field} label="Parts">
-                      <MenuItem value="Bumper">Bumper</MenuItem>
-                      <MenuItem value="Fender">Fender</MenuItem>
-                      <MenuItem value="Hood">Hood</MenuItem>
-                      <MenuItem value="Windshield">Windshield</MenuItem>
-                      <MenuItem value="Battery">Battery</MenuItem>
-                    </Select>
-                  </FormControl>
-                )}
-              />
-
-              {/* DESCRIPTION */}
-              <Controller
-                name="description"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Description"
-                    multiline
-                    rows={3}
-                    fullWidth
-                    margin="dense"
-                    error={!!errors.description}
-                    helperText={errors.description?.message}
-                  />
-                )}
-              />
-
-              {/* PRICE */}
-              <Controller
-                name="price"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Price"
-                    fullWidth
-                    margin="dense"
-                    error={!!errors.price}
-                    helperText={errors.price?.message}
-                  />
-                )}
-              />
-            </DialogContent>
-
-            <DialogActions sx={{ p: 3 }}>
-              <Button onClick={handleClose}>Cancel</Button>
-              <Button variant="contained" type="submit" disabled={loading}>
-                {loading
-                  ? "Saving..."
-                  : editId
-                  ? "Update Product"
-                  : "Save Product"}
-              </Button>
-            </DialogActions>
-          </form>
-        </Dialog>
-
-        {/* TABLE */}
-        <Box mt={4}>
-          <TableContainer component={Paper}>
+          {/* Inventory Table */}
+          <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2, border: '1px solid #e0e0e0' }}>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Image</TableCell>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Parts Name</TableCell>
-                  <TableCell>Description</TableCell>
-                  <TableCell>Price</TableCell>
-                  <TableCell align="center">Actions</TableCell>
+                  <TableCell>ITEM</TableCell>
+                  <TableCell>PARTS</TableCell>
+                  <TableCell>PRICE</TableCell>
+                  <TableCell align="right">ACTIONS</TableCell>
                 </TableRow>
               </TableHead>
-
               <TableBody>
-                {items?.length > 0 ? (
-                  items.map((item: any) => (
-                    <TableRow key={item.$id}>
-                      <TableCell>
-                        {item.image ? (
-                          <Box
-                            component="img"
-                            src={item.image}
-                            sx={{
-                              width: 60,
-                              height: 60,
-                              objectFit: "cover",
-                              borderRadius: 2,
-                            }}
-                          />
-                        ) : (
-                          "No Image"
-                        )}
-                      </TableCell>
-
-                      <TableCell>{item.name}</TableCell>
-                      <TableCell>{item.brand}</TableCell>
-                      <TableCell>{item.description}</TableCell>
-                      <TableCell>₹ {item.price}</TableCell>
-
-                      <TableCell align="center">
-                        <IconButton
-                          color="primary"
-                          onClick={() => handleEdit(item)}
-                        >
-                          <EditIcon />
-                        </IconButton>
-
-                        <IconButton
-                          color="error"
-                          onClick={() =>
-                            dispatch(deleteSpare(item.$id))
-                          }
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={6} align="center">
-                      No Products Found
+                {items?.map((item: any) => (
+                  <TableRow key={item.$id} hover>
+                    <TableCell>
+                      <Stack direction="row" spacing={2} alignItems="center">
+                        <Box component="img" src={item.image} sx={{ width: 44, height: 44, borderRadius: 1, objectFit: 'cover', border: '1px solid #eee' }} />
+                        <Typography variant="body2" fontWeight={600}>{item.name}</Typography>
+                      </Stack>
+                    </TableCell>
+                    <TableCell>{item.brand}</TableCell>
+                    <TableCell sx={{ color: '#d32f2f', fontWeight: 700 }}>₹{item.price}</TableCell>
+                    <TableCell align="right">
+                      <IconButton size="small" onClick={() => { setEditId(item.$id); setOpen(true); setValue("name", item.name); }}><EditOutlinedIcon fontSize="inherit" /></IconButton>
+                      <IconButton size="small" color="error" onClick={() => dispatch(deleteSpare(item.$id))}><DeleteOutlineIcon fontSize="inherit" /></IconButton>
                     </TableCell>
                   </TableRow>
-                )}
+                ))}
               </TableBody>
             </Table>
           </TableContainer>
-        </Box>
-      </Container>
+
+          {/* --- ALIGNED FORM DIALOG --- */}
+          <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 1 } }}>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <Box sx={{ p: 3, borderBottom: '1px solid #eee' }}>
+                <Typography variant="h6" fontWeight={800}>
+                  {editId ? "Update Spare Part" : "Create New Spare Part"}
+                </Typography>
+              </Box>
+
+              <DialogContent sx={{ p: 3 }}>
+                <Stack spacing={3}>
+                  
+                  {/* Image Upload Row - Aligned horizontally */}
+                  {!editId && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, p: 2, border: '1px solid #eee', borderRadius: 1, bgcolor: '#fafafa' }}>
+                      <Box sx={{ width: 80, height: 80, borderRadius: 1, bgcolor: '#fff', border: '1px solid #ddd', overflow: 'hidden', flexShrink: 0 }}>
+                        {previewImage ? (
+                          <img src={previewImage} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                            <PhotoCameraOutlinedIcon sx={{ color: '#ccc' }} />
+                          </Box>
+                        )}
+                      </Box>
+                      <Box>
+                        <Typography variant="subtitle2" fontWeight={700}>Product Photo</Typography>
+                        <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1 }}>JPG, PNG or WEBP. Max 2MB.</Typography>
+                        <Button component="label" variant="outlined" size="small" sx={{ fontSize: '0.75rem' }}>
+                          Upload Image
+                          <input hidden type="file" accept="image/*" onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) setValue("imagePreview", URL.createObjectURL(file));
+                          }} />
+                        </Button>
+                      </Box>
+                    </Box>
+                  )}
+
+                  {/* General Info Row */}
+                  <Controller name="name" control={control} render={({ field }) => (
+                    <TextField {...field} label="Product Name" fullWidth error={!!errors.name} helperText={errors.name?.message} />
+                  )} />
+
+                  {/* Two-Column Alignment for Category & Price */}
+                  <Grid container spacing={2}>
+                    <Grid size={{xs:6}}>
+                      <Controller name="brand" control={control} render={({ field }) => (
+                        <FormControl fullWidth error={!!errors.brand}>
+                          <InputLabel>Category</InputLabel>
+                          <Select {...field} label="Category">
+                            <MenuItem value="Bumper">Bumper</MenuItem>
+                            <MenuItem value="Fender">Fender</MenuItem>
+                            <MenuItem value="Hood">Hood</MenuItem>
+                            <MenuItem value="Battery">Battery</MenuItem>
+                          </Select>
+                          <FormHelperText>{errors.brand?.message}</FormHelperText>
+                        </FormControl>
+                      )} />
+                    </Grid>
+                    <Grid size={{xs:6}}>
+                      <Controller name="price" control={control} render={({ field }) => (
+                        <TextField {...field} label="Price (₹)" fullWidth error={!!errors.price} helperText={errors.price?.message} />
+                      )} />
+                    </Grid>
+                  </Grid>
+
+                  <Controller name="description" control={control} render={({ field }) => (
+                    <TextField {...field} label="Description" multiline rows={3} fullWidth error={!!errors.description} helperText={errors.description?.message} />
+                  )} />
+                </Stack>
+              </DialogContent>
+
+              <DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
+                <Button onClick={handleClose} color="inherit" sx={{ fontWeight: 600 }}>Cancel</Button>
+                <Button variant="contained" type="submit" disableElevation sx={{ px: 4, fontWeight: 700 }}>
+                  {editId ? "Update Product" : "Save Product"}
+                </Button>
+              </DialogActions>
+            </form>
+          </Dialog>
+        </Container>
+      </Box>
     </ThemeProvider>
   );
 }

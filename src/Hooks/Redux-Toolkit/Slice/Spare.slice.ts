@@ -127,7 +127,7 @@ const Spareslice = createSlice({
       })
       .addCase(addSpare.fulfilled, (state, action) => {
         state.loading = false;
-        state.items.unshift(action.payload);
+        state.items.unshift(action.payload as any);
       })
       .addCase(addSpare.rejected, (state, action) => {
         state.loading = false;

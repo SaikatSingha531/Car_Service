@@ -9,6 +9,7 @@ import {
 import BuildIcon from "@mui/icons-material/Build";
 import TireRepairIcon from "@mui/icons-material/TireRepair";
 import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
+import type { ServiceCardProps } from "../../Typescript/type/globaltype";
 
 const HomeSecond = () => {
   return (
@@ -85,7 +86,7 @@ const HomeSecond = () => {
   );
 };
 
-const ServiceCard = ({ icon, title }) => (
+const ServiceCard = ({ icon, title }:ServiceCardProps) => (
   <Box
     textAlign="center"
     sx={{

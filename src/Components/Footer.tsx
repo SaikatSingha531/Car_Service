@@ -16,7 +16,7 @@ import InstagramIcon from "@mui/icons-material/Instagram";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 /* ---------------- Info Card ---------------- */
-const InfoCard = ({ icon, title, children }) => (
+const InfoCard = ({ icon, title, children }:any) => (
   <Stack
     direction="row"
     spacing={2}
@@ -48,7 +48,7 @@ const InfoCard = ({ icon, title, children }) => (
 );
 
 /* ---------------- Footer Button ---------------- */
-const FooterButton = ({ label, onClick }) => (
+const FooterButton = ({ label, onClick }:any) => (
   <Button
     onClick={onClick}
     variant="text"

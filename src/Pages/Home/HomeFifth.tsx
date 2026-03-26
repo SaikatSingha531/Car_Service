@@ -1,4 +1,4 @@
-import { Box, Typography, Button, Stack } from "@mui/material";
+import { Box, Typography, Stack } from "@mui/material";
 import imgOne from "../../assets/fifthOne.png";
 import imgTwo from "../../assets/fifthTwo.png";
 import imgThree from "../../assets/fifthThree.png";

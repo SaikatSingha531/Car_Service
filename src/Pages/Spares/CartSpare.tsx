@@ -15,6 +15,7 @@ import {
   removeFromCart,
 } from "../../Hooks/Redux-Toolkit/Slice/Cart.slice";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const CartSpare = () => {
   const dispatch = useAppDispatch();
@@ -82,6 +83,7 @@ const CartSpare = () => {
         </Typography>
 
         <Button
+        onClick={()=>toast.warning(" This Feature Is Under Development Mode")}
           variant="contained"
           sx={{
             bgcolor: "#d90000",

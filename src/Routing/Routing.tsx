@@ -18,6 +18,7 @@ import CartService from "../Pages/Servicepage/CartService";
 import Services from "../Pages/Servicepage/Services";
 import CartSpare from "../Pages/Spares/CartSpare";
 import SparePage from "../Pages/Spares/Spares";
+import Contact from "../Pages/Contact";
 
 export const Router = createBrowserRouter([
   {
@@ -51,6 +52,10 @@ export const Router = createBrowserRouter([
       {
         path: "/service",
         element: <Services/>
+      },
+      {
+        path: "/contact",
+        element: <Contact/>
       },
       {
         path:"/cart",

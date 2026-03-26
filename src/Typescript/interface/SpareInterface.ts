@@ -1,4 +1,5 @@
 export interface items{
+    $id:string,
     image:string,
     name:string,
     brand:string,
@@ -11,3 +12,6 @@ export interface Sparestate{
   error: string | null;
     items:items[]
 }
+
+
+
